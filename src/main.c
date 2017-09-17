@@ -11,8 +11,7 @@
 
 int main()
 {
-//  JPEG_loadImage("assets/savanna.jpg");
-  JPEG_saveImage("assets/brau.jpg", 100);
-  printf("Hello World\n");
+  JPEG_loadImage("assets/savanna.jpg");
+  //JPEG_saveImage("assets/brau.jpg", 100);
   return 0;
 }
