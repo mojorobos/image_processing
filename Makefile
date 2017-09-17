@@ -1,8 +1,9 @@
 CC=clang
-CFLAGS=-L./libs/libjpeg/lib/ -ljpeg
+CFLAGS=-L./libs/libjpeg/lib/ -ljpeg -I./libs/libjpeg/include/
+#CFLAGS=-ljpeg
 
 SRC = src
-INCLUDE=libs/libpeg/include/
+INCLUDE = libs/libpeg/include
 DEPS = $(INCLUDE)/jpeglib.h 
 OBJ = $(SRC)/jpeg.o $(SRC)/main.o
 
@@ -13,7 +14,7 @@ processing: $(OBJ)
 	$(CC) $(DEBUG) -o $@ $^ $(CFLAGS)
 
 clean:
-	rm $(OBJ)
+	rm $(OBJ) processing
 
 debug: DEBUG = -g -O0
 debug: processing
