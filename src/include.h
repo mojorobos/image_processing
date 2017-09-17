@@ -5,13 +5,18 @@
  * Copyright MOJO ROBOS, 2017.
  */
 
-#include "include.h"
-#include "jpeglib.h"
-#include "jpeg.h"
 
-int main()
-{
-  JPEG_loadImage();
-  printf("Hello World");
-  return 0;
-}
+#ifndef _INCLUDE_H
+#define _INCLUDE_H
+
+// ====================== SYSTEM RELATED
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+// ====================== JPEG RELATED
+#include "jpeglib.h"
+#include <setjmp.h>
+
+#endif
