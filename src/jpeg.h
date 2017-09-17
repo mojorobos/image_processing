@@ -11,6 +11,6 @@
 #include "include.h"
 
 bool JPEG_loadImage(char *filename);
-//void JPEG_saveImage();
+bool JPEG_saveImage(char *filename, int quality);
 
 #endif
