@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=#-L./libs/libjpeg/lib/ -ljpeg
+CFLAGS=-L./libs/libjpeg/lib/ -ljpeg
 
 SRC = src
 INCLUDE=libs/libpeg/include/

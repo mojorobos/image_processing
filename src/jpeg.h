@@ -10,7 +10,7 @@
 
 #include "include.h"
 
-bool JPEG_loadImage();
+bool JPEG_loadImage(char *filename);
 //void JPEG_saveImage();
 
 #endif

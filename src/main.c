@@ -11,7 +11,7 @@
 
 int main()
 {
-  JPEG_loadImage();
-  printf("Hello World");
+  JPEG_loadImage("assets/savanna.jpg");
+  printf("Hello World\n");
   return 0;
 }
