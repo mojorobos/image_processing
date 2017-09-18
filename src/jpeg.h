@@ -10,6 +10,18 @@
 
 #include "include.h"
 
+typedef union _JPEG_pixel
+{
+  struct {
+    unsigned char alpha;
+    unsigned char red;
+    unsigned char green;
+    unsigned char blue;
+  } colors;
+  
+  int  value;
+} JPEG_pixel;
+
 bool JPEG_process_image(char *fileIn, char *fileOut);
 
 #endif

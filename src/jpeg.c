@@ -106,6 +106,12 @@ static jpeg_compress_struct* JPEG_start_new_image(JPEG_info *jpeg_info)
 
 static void JPEG_handle_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *cinfo)
 {
+  // TODO:
+  // grey scaled
+  // gaussian blur
+  // first edge detection
+  // second edge detection
+
   JSAMPROW row_pointer[1];
   for (int col = 0; col < jpeg_info->height; col++) {
     row_pointer[0] = jpeg_info->buffer[col];
@@ -115,28 +121,45 @@ static void JPEG_handle_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *ci
       char g1 = row_pointer[0][row + 1];
       char b1 = row_pointer[0][row + 2];
 
-      char r2 = row_pointer[0][row + 3];
-      char g2 = row_pointer[0][row + 4];
-      char b2 = row_pointer[0][row + 5];
-
-      double bgts1 = UTIL_brightness(r1, g1, b1);
-      double bgts2 = UTIL_brightness(r2, g2, b2);
-
-      char diff = (char) round(fabs(bgts1 - bgts2));
-      char trashold = 20;
-      if (diff > trashold) {
-        row_pointer[0][row]     = 0;
-        row_pointer[0][row + 1] = 0;
-        row_pointer[0][row + 2] = 0;
-      } else {
-        row_pointer[0][row]     = 255;
-        row_pointer[0][row + 1] = 255;
-        row_pointer[0][row + 2] = 255;
-      }
+      char gray = UTIL_grayscale(r1, g1, b1);
+      row_pointer[0][row]     = gray;
+      row_pointer[0][row + 1] = gray;
+      row_pointer[0][row + 2] = gray;
     }
 
     (void) jpeg_write_scanlines(cinfo, row_pointer, 1);
   }
+  // JSAMPROW row_pointer[1];
+  // for (int col = 0; col < jpeg_info->height; col++) {
+  //   row_pointer[0] = jpeg_info->buffer[col];
+  //   // we are comparing the right pixel, therefore "-3"
+  //   for (int row = 0; row < jpeg_info->width * 3 - 3; row += 3) {
+  //     char r1 = row_pointer[0][row];
+  //     char g1 = row_pointer[0][row + 1];
+  //     char b1 = row_pointer[0][row + 2];
+  //
+  //     char r2 = row_pointer[0][row + 3];
+  //     char g2 = row_pointer[0][row + 4];
+  //     char b2 = row_pointer[0][row + 5];
+  //
+  //     double bgts1 = UTIL_brightness(r1, g1, b1);
+  //     double bgts2 = UTIL_brightness(r2, g2, b2);
+  //
+  //     char diff = (char) round(fabs(bgts1 - bgts2));
+  //     char trashold = 20;
+  //     if (diff > trashold) {
+  //       row_pointer[0][row]     = 0;
+  //       row_pointer[0][row + 1] = 0;
+  //       row_pointer[0][row + 2] = 0;
+  //     } else {
+  //       row_pointer[0][row]     = 255;
+  //       row_pointer[0][row + 1] = 255;
+  //       row_pointer[0][row + 2] = 255;
+  //     }
+  //   }
+  //
+  //   (void) jpeg_write_scanlines(cinfo, row_pointer, 1);
+  // }
 }
 
 static bool JPEG_save_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *cinfo)

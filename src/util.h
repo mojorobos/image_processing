@@ -11,5 +11,6 @@
 #include "include.h"
 
 double UTIL_brightness(char r, char g, char b);
+char   UTIL_grayscale (char r, char g, char b);
 
 #endif
