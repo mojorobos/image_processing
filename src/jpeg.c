@@ -24,7 +24,7 @@ struct JPEG_info_mgr
   int     quality;
   FILE    *file;
   char    *filename;
-  JSAMPLE *buffer;
+  JSAMPLE **buffer;
 };
 
 typedef struct JPEG_info_mgr JPEG_info;
@@ -107,34 +107,36 @@ static jpeg_compress_struct* JPEG_start_new_image(JPEG_info *jpeg_info)
 static void JPEG_handle_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *cinfo)
 {
   JSAMPROW row_pointer[1];
-  row_pointer[0] = jpeg_info->buffer;
-  // we are comparing the right pixel, therefore "-3"
-  for (int row = 0; row < jpeg_info->width * 3 - 3; row += 3) {
-    char r1 = row_pointer[0][row];
-    char g1 = row_pointer[0][row + 1];
-    char b1 = row_pointer[0][row + 2];
+  for (int col = 0; col < jpeg_info->height; col++) {
+    row_pointer[0] = jpeg_info->buffer[col];
+    // we are comparing the right pixel, therefore "-3"
+    for (int row = 0; row < jpeg_info->width * 3 - 3; row += 3) {
+      char r1 = row_pointer[0][row];
+      char g1 = row_pointer[0][row + 1];
+      char b1 = row_pointer[0][row + 2];
 
-    char r2 = row_pointer[0][row + 3];
-    char g2 = row_pointer[0][row + 4];
-    char b2 = row_pointer[0][row + 5];
+      char r2 = row_pointer[0][row + 3];
+      char g2 = row_pointer[0][row + 4];
+      char b2 = row_pointer[0][row + 5];
 
-    double bgts1 = UTIL_brightness(r1, g1, b1);
-    double bgts2 = UTIL_brightness(r2, g2, b2);
+      double bgts1 = UTIL_brightness(r1, g1, b1);
+      double bgts2 = UTIL_brightness(r2, g2, b2);
 
-    char diff = (char) round(fabs(bgts1 - bgts2));
-    char trashold = 20;
-    if (diff > trashold) {
-      row_pointer[0][row]     = 0;
-      row_pointer[0][row + 1] = 0;
-      row_pointer[0][row + 2] = 0;
-    } else {
-      row_pointer[0][row]     = 255;
-      row_pointer[0][row + 1] = 255;
-      row_pointer[0][row + 2] = 255;
+      char diff = (char) round(fabs(bgts1 - bgts2));
+      char trashold = 20;
+      if (diff > trashold) {
+        row_pointer[0][row]     = 0;
+        row_pointer[0][row + 1] = 0;
+        row_pointer[0][row + 2] = 0;
+      } else {
+        row_pointer[0][row]     = 255;
+        row_pointer[0][row + 1] = 255;
+        row_pointer[0][row + 2] = 255;
+      }
     }
-  }
 
-  (void) jpeg_write_scanlines(cinfo, row_pointer, 1);
+    (void) jpeg_write_scanlines(cinfo, row_pointer, 1);
+  }
 }
 
 static bool JPEG_save_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *cinfo)
@@ -224,6 +226,7 @@ bool JPEG_process_image(char *file_in, char *file_out)
 
   // set info for the output jpeg.
   JPEG_info *jpeg_info = (JPEG_info *) malloc(sizeof(JPEG_info));
+  jpeg_info->buffer   = (JSAMPLE **) malloc(sizeof(JSAMPLE* ) * cinfo.output_height);
   jpeg_info->filename = file_out;
   jpeg_info->width    = cinfo.output_width;
   jpeg_info->height   = cinfo.output_height;
@@ -231,18 +234,29 @@ bool JPEG_process_image(char *file_in, char *file_out)
   jpeg_info->file     = NULL;
 
   jpeg_compress_struct *new_cinfo = JPEG_start_new_image(jpeg_info);
+  int i = 0;
 
+  // loadPixels
   while (cinfo.output_scanline < cinfo.output_height) {
     (void) jpeg_read_scanlines(&cinfo, buffer, 1);
     /* Assume put_scanline_someplace wants a pointer and sample count. */
     //JPEG_put_scanline_someplace(buffer[0], row_stride);
-
-    jpeg_info->buffer = buffer[0];
-    JPEG_handle_new_image(jpeg_info, new_cinfo);
+    jpeg_info->buffer[i] = (JSAMPLE *) malloc(sizeof(JSAMPLE) * cinfo.output_width * 3);
+    memcpy(jpeg_info->buffer[i], buffer[0], sizeof(JSAMPLE) * cinfo.output_width * 3);
+    i++;
   }
 
+  // Process new pixels
+  JPEG_handle_new_image(jpeg_info, new_cinfo);
+
+  // Save new image and free allocated memory
   JPEG_save_new_image(jpeg_info, new_cinfo);
 
+  for (int i = 0; i < cinfo.output_height; i++) {
+    free(jpeg_info->buffer[i]);
+  }
+
+  free(jpeg_info->buffer);
   free(jpeg_info);
 
   /* Step 7: Finish decompression */

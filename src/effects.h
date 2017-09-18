@@ -5,14 +5,9 @@
  * Copyright MOJO ROBOS, 2017.
  */
 
-#include "include.h"
-#include "jpeglib.h"
-#include "jpeg.h"
+#ifndef _EFFECTS_H
+#define _EFFECTS_H
 
-int main(int argc, char **argv)
-{
-  JPEG_process_image(argv[1], argv[2]);
-  //read_JPEG_file ("assets/savanna.jpg");
-  //JPEG_saveImage("assets/brau.jpg", 100);
-  return 0;
-}
+#include "include.h"
+
+#endif

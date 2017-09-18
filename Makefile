@@ -4,7 +4,7 @@ CFLAGS=-L./libs/libjpeg/lib/ -ljpeg -lm -I./libs/libjpeg/include/
 SRC = src
 INCLUDE = libs/libpeg/include
 DEPS = $(INCLUDE)/jpeglib.h $(SRC)/include.h
-OBJ = $(SRC)/util.o $(SRC)/jpeg.o $(SRC)/main.o
+OBJ = $(SRC)/util.o $(SRC)/effects.o $(SRC)/jpeg.o $(SRC)/main.o
 
 %.o: %.c $(DEPS)
 	$(CC) $(DEBUG) -c -o $@ $<
