@@ -21,6 +21,7 @@ struct JPEG_info_mgr
   int     width;
   int     height;
   int     quality;
+  FILE    *file;
   char    *filename;
   JSAMPLE *buffer;
 };
@@ -35,9 +36,13 @@ struct JPEG_error_mgr
 
 typedef struct JPEG_error_mgr *JPEG_error_ptr;
 
+typedef struct jpeg_compress_struct jpeg_compress_struct;
+
 // ====================== FUNCTION DECLARATIONs
 
-static bool JPEG_saveImage(JPEG_info *jpeg_info);
+static jpeg_compress_struct* JPEG_start_new_image(JPEG_info *jpeg_info);
+static void JPEG_handle_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *cinfo);
+static bool JPEG_save_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *cinfo);
 static void JPEG_error_exit(j_common_ptr cinfo);
 static void JPEG_put_scanline_someplace(JSAMPLE* ba, int row_stride);
 
@@ -54,7 +59,7 @@ static void JPEG_error_exit(j_common_ptr cinfo)
   longjmp(myerr->setjmp_buffer, 1);
 }
 
-static bool JPEG_saveImage(JPEG_info *jpeg_info)
+static jpeg_compress_struct* JPEG_start_new_image(JPEG_info *jpeg_info)
 {
   /* This struct contains the JPEG compression parameters and pointers to
    * working space (which is allocated as needed by the JPEG library).
@@ -62,61 +67,63 @@ static bool JPEG_saveImage(JPEG_info *jpeg_info)
    * compression/decompression processes, in existence at once.  We refer
    * to any one struct (and its associated working data) as a "JPEG object".
    */
-  struct jpeg_compress_struct cinfo;
+  struct jpeg_compress_struct *cinfo =
+    (jpeg_compress_struct *) malloc(sizeof(jpeg_compress_struct));
   struct jpeg_error_mgr jerr;
   FILE *outfile;		/* target file */
-  JSAMPROW row_pointer[1];	/* pointer to JSAMPLE row[s] */
-  int row_stride;		/* physical row width in image buffer */
 
   /* Step 1: allocate and initialize JPEG compression object */
 
-  cinfo.err = jpeg_std_error(&jerr);
+  cinfo->err = jpeg_std_error(&jerr);
   /* Now we can initialize the JPEG compression object. */
-  jpeg_create_compress(&cinfo);
+  jpeg_create_compress(cinfo);
 
   /* Step 2: specify data destination (eg, a file) */
   if ((outfile = fopen(jpeg_info->filename, "wb")) == NULL) {
     fprintf(stderr, "can't open %s\n", jpeg_info->filename);
     exit(1);
   }
-  jpeg_stdio_dest(&cinfo, outfile);
+
+  jpeg_info->file = outfile;
+  jpeg_stdio_dest(cinfo, outfile);
 
   /* Step 3: set parameters for compression */
 
-  cinfo.image_width = jpeg_info->width; 	/* image width and height, in pixels */
-  cinfo.image_height = jpeg_info->height;
-  cinfo.input_components = 3;		/* # of color components per pixel */
-  cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
+  cinfo->image_width = jpeg_info->width; 	/* image width and height, in pixels */
+  cinfo->image_height = jpeg_info->height;
+  cinfo->input_components = 3;		/* # of color components per pixel */
+  cinfo->in_color_space = JCS_RGB; 	/* colorspace of input image */
 
-  jpeg_set_defaults(&cinfo);
-  jpeg_set_quality(&cinfo, jpeg_info->quality, TRUE /* limit to baseline-JPEG values */);
+  jpeg_set_defaults(cinfo);
+  jpeg_set_quality(cinfo, jpeg_info->quality, TRUE /* limit to baseline-JPEG values */);
 
   /* Step 4: Start compressor */
-  jpeg_start_compress(&cinfo, TRUE);
+  jpeg_start_compress(cinfo, TRUE);
 
-  /* Step 5: while (scan lines remain to be written) */
-  /*           jpeg_write_scanlines(...); */
+  return cinfo;
+}
 
-  row_stride = jpeg_info->width * 3;	/* JSAMPLEs per row in image_buffer */
-
-  while (cinfo.next_scanline < cinfo.image_height) {
-    /* jpeg_write_scanlines expects an array of pointers to scanlines.
-     * Here the array is only one element long, but you could pass
-     * more than one scanline at a time if that's more convenient.
-     */
-    row_pointer[0] = &(jpeg_info->buffer)[cinfo.next_scanline * row_stride];
-    (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
+static void JPEG_handle_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *cinfo)
+{
+  JSAMPROW row_pointer[1];
+  row_pointer[0] = jpeg_info->buffer;
+  // modify the line
+  for (int row = 0; row < jpeg_info->width * 3 - 3; row += 3) {
   }
 
-  /* Step 6: Finish compression */
+  (void) jpeg_write_scanlines(cinfo, row_pointer, 1);
+}
 
-  jpeg_finish_compress(&cinfo);
+static bool JPEG_save_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *cinfo)
+{
+  /* Step 6: Finish compression */
+  jpeg_finish_compress(cinfo);
   /* After finish_compress, we can close the output file. */
-  fclose(outfile);
+  fclose(jpeg_info->file);
 
   /* Step 7: release JPEG compression object */
-
-  jpeg_destroy_compress(&cinfo);
+  jpeg_destroy_compress(cinfo);
+  free(cinfo);
   return true;
 }
 
@@ -131,7 +138,7 @@ static void JPEG_put_scanline_someplace (JSAMPLE* ba, int row_stride)
   //printf ("width: %3d height: %3d\n", row_stride, height++);
 }
 
-bool JPEG_processImage(char *fileIn, char *fileOut)
+bool JPEG_process_image(char *file_in, char *file_out)
 {
   /* This struct contains the JPEG decompression parameters and pointers to
    * working space (which is allocated as needed by the JPEG library).
@@ -145,8 +152,8 @@ bool JPEG_processImage(char *fileIn, char *fileOut)
   /* physical row width in output buffer */
   int row_stride;
 
-  if ((infile = fopen(fileIn, "rb")) == NULL) {
-    fprintf(stderr, "can't open %s\n", fileIn);
+  if ((infile = fopen(file_in, "rb")) == NULL) {
+    fprintf(stderr, "can't open %s\n", file_in);
     return false;
   }
 
@@ -191,11 +198,29 @@ bool JPEG_processImage(char *fileIn, char *fileOut)
 
   /* Step 6: while (scan lines remain to be read) */
   /*           jpeg_read_scanlines(...); */
+
+  // set info for the output jpeg.
+  JPEG_info *jpeg_info = (JPEG_info *) malloc(sizeof(JPEG_info));
+  jpeg_info->filename = file_out;
+  jpeg_info->width    = cinfo.output_width;
+  jpeg_info->height   = cinfo.output_height;
+  jpeg_info->quality  = 100;
+  jpeg_info->file     = NULL;
+
+  jpeg_compress_struct *new_cinfo = JPEG_start_new_image(jpeg_info);
+
   while (cinfo.output_scanline < cinfo.output_height) {
     (void) jpeg_read_scanlines(&cinfo, buffer, 1);
     /* Assume put_scanline_someplace wants a pointer and sample count. */
-    JPEG_put_scanline_someplace(buffer[0], row_stride);
+    //JPEG_put_scanline_someplace(buffer[0], row_stride);
+
+    jpeg_info->buffer = buffer[0];
+    JPEG_handle_new_image(jpeg_info, new_cinfo);
   }
+
+  JPEG_save_new_image(jpeg_info, new_cinfo);
+
+  free(jpeg_info);
 
   /* Step 7: Finish decompression */
   (void) jpeg_finish_decompress(&cinfo);

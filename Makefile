@@ -1,10 +1,9 @@
 CC=clang
 CFLAGS=-L./libs/libjpeg/lib/ -ljpeg -I./libs/libjpeg/include/
-#CFLAGS=-ljpeg
 
 SRC = src
 INCLUDE = libs/libpeg/include
-DEPS = $(INCLUDE)/jpeglib.h 
+DEPS = $(INCLUDE)/jpeglib.h
 OBJ = $(SRC)/jpeg.o $(SRC)/main.o
 
 %.o: %.c $(DEPS)

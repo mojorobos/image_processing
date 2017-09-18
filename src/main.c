@@ -11,7 +11,8 @@
 
 int main()
 {
-  JPEG_processImage("assets/savanna.jpg", "assets/brau.jpg");
+  JPEG_process_image("assets/savanna.jpg", "assets/brau.jpg");
+  //read_JPEG_file ("assets/savanna.jpg");
   //JPEG_saveImage("assets/brau.jpg", 100);
   return 0;
 }

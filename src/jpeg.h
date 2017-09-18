@@ -10,6 +10,6 @@
 
 #include "include.h"
 
-bool JPEG_processImage(char *fileIn, char *fileOut);
+bool JPEG_process_image(char *fileIn, char *fileOut);
 
 #endif
