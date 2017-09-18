@@ -5,14 +5,11 @@
  * Copyright MOJO ROBOS, 2017.
  */
 
-#include "include.h"
-#include "jpeglib.h"
-#include "jpeg.h"
+#ifndef _UTIL_H
+#define _UTIL_H
 
-int main()
-{
-  JPEG_process_image("assets/1.jpg", "assets/2.jpg");
-  //read_JPEG_file ("assets/savanna.jpg");
-  //JPEG_saveImage("assets/brau.jpg", 100);
-  return 0;
-}
+#include "include.h"
+
+double UTIL_brightness(char r, char g, char b);
+
+#endif

@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 
 // ====================== JPEG RELATED
 #include "jpeglib.h"
