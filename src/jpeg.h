@@ -10,7 +10,6 @@
 
 #include "include.h"
 
-bool JPEG_loadImage(char *filename);
-bool JPEG_saveImage(char *filename, int quality);
+bool JPEG_processImage(char *fileIn, char *fileOut);
 
 #endif
