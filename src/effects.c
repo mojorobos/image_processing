@@ -10,19 +10,24 @@
 
 void EFFECTS_grayscale(JPEG_info *jpeg_info)
 {
- JSAMPROW row_pointer[1];
- for (int col = 0; col < jpeg_info->height; col++) {
-   row_pointer[0] = jpeg_info->buffer[col];
-   // we are comparing the right pixel, therefore "-3"
-   for (int row = 0; row < jpeg_info->width * 3; row += 3) {
-     char r1 = row_pointer[0][row];
-     char g1 = row_pointer[0][row + 1];
-     char b1 = row_pointer[0][row + 2];
+  JSAMPROW row_pointer[1];
+  for (int col = 0; col < jpeg_info->height; col++) {
+    row_pointer[0] = jpeg_info->buffer[col];
+    // we are comparing the right pixel, therefore "-3"
+    for (int row = 0; row < jpeg_info->width * 3; row += 3) {
+      char r1 = row_pointer[0][row];
+      char g1 = row_pointer[0][row + 1];
+      char b1 = row_pointer[0][row + 2];
 
-     char gray = UTIL_grayscale(r1, g1, b1);
-     row_pointer[0][row]     = gray;
-     row_pointer[0][row + 1] = gray;
-     row_pointer[0][row + 2] = gray;
-   }
- }
+      char gray = UTIL_grayscale(r1, g1, b1);
+
+      row_pointer[0][row]     = gray;
+      row_pointer[0][row + 1] = gray;
+      row_pointer[0][row + 2] = gray;
+    }
+  }
+}
+
+void EFFECTS_gaussian_kernel(JPEG_info *jpeg_info)
+{
 }

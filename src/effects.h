@@ -12,5 +12,6 @@
 #include "jpeg.h"
 
 void EFFECTS_grayscale(JPEG_info *jpeg_info);
+void EFFECTS_gaussian_kernel(JPEG_info *jpeg_info);
 
 #endif
