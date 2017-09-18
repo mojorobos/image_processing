@@ -18,9 +18,19 @@ typedef union _JPEG_pixel
     unsigned char green;
     unsigned char blue;
   } colors;
-  
+
   int  value;
 } JPEG_pixel;
+
+typedef struct _JPEG_info
+{
+  int     width;
+  int     height;
+  int     quality;
+  FILE    *file;
+  char    *filename;
+  JSAMPLE **buffer;
+} JPEG_info;
 
 bool JPEG_process_image(char *fileIn, char *fileOut);
 

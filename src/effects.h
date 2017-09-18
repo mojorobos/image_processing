@@ -9,5 +9,8 @@
 #define _EFFECTS_H
 
 #include "include.h"
+#include "jpeg.h"
+
+void EFFECTS_grayscale(JPEG_info *jpeg_info);
 
 #endif

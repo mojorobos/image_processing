@@ -7,27 +7,9 @@
 
 #include "jpeg.h"
 #include "util.h"
+#include "effects.h"
 
 // ====================== JPEG Data Structures
-
-enum JPEG_state
-{
-  JS_SETUP,
-  JS_PROCESSING,
-  JS_DONE
-};
-
-struct JPEG_info_mgr
-{
-  int     width;
-  int     height;
-  int     quality;
-  FILE    *file;
-  char    *filename;
-  JSAMPLE **buffer;
-};
-
-typedef struct JPEG_info_mgr JPEG_info;
 
 struct JPEG_error_mgr
 {
@@ -112,21 +94,11 @@ static void JPEG_handle_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *ci
   // first edge detection
   // second edge detection
 
+  EFFECTS_grayscale(jpeg_info);
+
   JSAMPROW row_pointer[1];
   for (int col = 0; col < jpeg_info->height; col++) {
     row_pointer[0] = jpeg_info->buffer[col];
-    // we are comparing the right pixel, therefore "-3"
-    for (int row = 0; row < jpeg_info->width * 3 - 3; row += 3) {
-      char r1 = row_pointer[0][row];
-      char g1 = row_pointer[0][row + 1];
-      char b1 = row_pointer[0][row + 2];
-
-      char gray = UTIL_grayscale(r1, g1, b1);
-      row_pointer[0][row]     = gray;
-      row_pointer[0][row + 1] = gray;
-      row_pointer[0][row + 2] = gray;
-    }
-
     (void) jpeg_write_scanlines(cinfo, row_pointer, 1);
   }
   // JSAMPROW row_pointer[1];
