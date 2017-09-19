@@ -3,6 +3,7 @@
 
 ### Installing
   - `cd /path/to/image_processing/`
+  - `git clone --depth=1 https://github.com/mojorobos/image_processing.git`
   - `make`
 
 ### Usage
