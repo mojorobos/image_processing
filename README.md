@@ -4,6 +4,7 @@
 ### Installing
   - `cd /path/to/image_processing/`
   - `git clone --depth=1 https://github.com/mojorobos/image_processing.git`
+  - `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/image_processing/libs/libjpeg/lib/`
   - `make`
 
 ### Usage
