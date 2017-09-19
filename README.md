@@ -1,6 +1,9 @@
 # Processing
 > Processing is an edge detection tool part of a Rembrandt-style robotic arm solution developed by Mojo Robos
 
+### Status
+Processing is currently under development, once Mojo Robos is still improving its edge detection algorithms.
+
 ### Installing
   - `cd /path/to/image_processing/`
   - `git clone --depth=1 https://github.com/mojorobos/image_processing.git`
@@ -11,11 +14,12 @@
   - `./processing "path/to/imageIn.jpg" "path/to/imageOut.jpg"`
 
 ### Args specs
-  - `ImageIn`: Image input
+  - `imageIn`: Image input
 <p align="center">
 	<img alt="BrainStation" src="./assets/in.jpg" height="500px" />
 </p>
-  - `ImageOut`: Image output
+
+  - `imageOut`: Image output
 <p align="center">
 	<img alt="BrainStation" src="./assets/out.jpg" height="500px" />
 </p>
