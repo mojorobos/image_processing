@@ -91,6 +91,8 @@ static void JPEG_handle_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *ci
   // TODO:
   // grey scaled
   // gaussian blur
+  // sobel filter
+  // canny:
   // first edge detection
   // second edge detection
 
