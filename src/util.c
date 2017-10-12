@@ -15,6 +15,6 @@ double UTIL_brightness(char r, char g, char b)
 char UTIL_grayscale(char r, char g, char b)
 {
   char bgts = round(UTIL_brightness(r, g, b));
-  // TODO: it now returns it 20% brighter (check that later)
-  return bgts * 1.2;
+  // TODO: Adjust percentage of brightness
+  return bgts * 1.5;
 }

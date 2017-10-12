@@ -98,12 +98,12 @@ static void JPEG_handle_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *ci
 
   EFFECTS_grayscale(jpeg_info);
 
-  // JSAMPROW row_pointer[1];
-  // for (int col = 0; col < jpeg_info->height; col++) {
-  //   row_pointer[0] = jpeg_info->buffer[col];
-  //   (void) jpeg_write_scanlines(cinfo, row_pointer, 1);
-  // }
   JSAMPROW row_pointer[1];
+  for (int col = 0; col < jpeg_info->height; col++) {
+    row_pointer[0] = jpeg_info->buffer[col];
+    (void) jpeg_write_scanlines(cinfo, row_pointer, 1);
+  }
+  /*JSAMPROW row_pointer[1];
   for (int col = 0; col < jpeg_info->height; col++) {
     row_pointer[0] = jpeg_info->buffer[col];
     // we are comparing the right pixel, therefore "-3"
@@ -133,7 +133,7 @@ static void JPEG_handle_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *ci
     }
 
     (void) jpeg_write_scanlines(cinfo, row_pointer, 1);
-  }
+  }*/
 }
 
 static bool JPEG_save_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *cinfo)
