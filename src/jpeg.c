@@ -97,6 +97,7 @@ static void JPEG_handle_new_image(JPEG_info *jpeg_info, jpeg_compress_struct *ci
   // second edge detection
 
   EFFECTS_grayscale(jpeg_info);
+  EFFECTS_gaussian_blur(jpeg_info);
 
   JSAMPROW row_pointer[1];
   for (int col = 0; col < jpeg_info->height; col++) {
