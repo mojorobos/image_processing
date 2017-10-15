@@ -11,7 +11,16 @@
 #include "include.h"
 #include "jpeg.h"
 
+typedef struct
+{
+  double  gradient;
+  double  direction;
+  bool is_using;
+} EFFECTS_info;
+
 void EFFECTS_grayscale(JPEG_info *jpeg_info);
 void EFFECTS_gaussian_blur(JPEG_info *jpeg_info);
+void EFFECTS_canny(JPEG_info *jpeg_info, EFFECTS_info *sobel_info);
+void EFFECTS_sobel(JPEG_info *jpeg_info, EFFECTS_info *sobel_info);
 
 #endif
