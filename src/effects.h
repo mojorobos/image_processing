@@ -15,7 +15,8 @@ typedef struct
 {
   double  gradient;
   double  direction;
-  bool is_using;
+  char    color;
+  bool    is_using;
 } EFFECTS_info;
 
 void EFFECTS_grayscale(JPEG_info *jpeg_info);

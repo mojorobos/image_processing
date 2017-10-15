@@ -8,6 +8,9 @@
 #include "effects.h"
 #include "util.h"
 
+#define PI 3.14159265
+#define MAX_GRADIENT 1001
+
 void EFFECTS_grayscale(JPEG_info *jpeg_info)
 {
   JSAMPROW row_pointer[1];
@@ -109,19 +112,26 @@ void EFFECTS_sobel(JPEG_info *jpeg_info, EFFECTS_info *effects_info)
       int cur_rc = (row * jpeg_info->width) + (col / 3);
       double gradient = sqrt(pow(sumGX, 2) + pow(sumGY, 2));
       double atanGYGX = atan2(sumGY, sumGX);
-      atanGYGX = atanGYGX * 180.0 / 3.14159265;
+      atanGYGX = atanGYGX * 180.0 / PI;
       effects_info[cur_rc].gradient  = gradient;
       effects_info[cur_rc].direction = atanGYGX;
-
-      char new_color   = floor(gradient * 255 / 360) > 50 ? 0 : 255;
-      rows[1][col]     = new_color;
-      rows[1][col + 1] = new_color;
-      rows[1][col + 2] = new_color;
+      effects_info[cur_rc].color     = floor(gradient * 255 / MAX_GRADIENT);
     }
   }
 }
 
 void EFFECTS_canny(JPEG_info *jpeg_info, EFFECTS_info *effects_info)
 {
-
+  JSAMPROW row_pointer[1];
+  for (int row = 0; row < jpeg_info->height; row++) {
+    row_pointer[0] = jpeg_info->buffer[row];
+    // we are comparing the right pixel, therefore "-3"
+    for (int col = 0; col < jpeg_info->width * 3; col += 3) {
+      int cur_rc = (row * jpeg_info->width) + (col / 3);
+      char color = effects_info[cur_rc].color;
+      row_pointer[0][col]     = color;
+      row_pointer[0][col + 1] = color;
+      row_pointer[0][col + 2] = color;
+    }
+  }
 }
